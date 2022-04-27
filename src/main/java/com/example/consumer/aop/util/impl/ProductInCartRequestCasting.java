@@ -1,8 +1,9 @@
 package com.example.consumer.aop.util.impl;
 
-import com.ipi.framework.zsdk.log.LogMe;
-import com.kido.framework.network.dto.ProductInCartRequest;
-import com.vinhhoang.cmsservice.aop.util.CollectionObjectCasting;
+import com.example.consumer.request.ProductInCartRequest;
+import com.example.consumer.aop.util.CollectionObjectCasting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 public class ProductInCartRequestCasting extends CollectionObjectCasting<ProductInCartRequest> {
 
+    private Logger logger = LoggerFactory.getLogger(ProductInCartRequestCasting.class);
     public ProductInCartRequestCasting(String key, BufferedReader reader) {
         super(key, reader);
     }
@@ -38,7 +40,7 @@ public class ProductInCartRequestCasting extends CollectionObjectCasting<Product
                 return response;
             }
         }catch (Exception ex){
-            LogMe.exception(ex);
+            logger.error(ex.getMessage());
         }
         return new ArrayList<>();
     }

@@ -1,11 +1,14 @@
 package com.example.consumer.aop.util.impl;
 
-import com.ipi.framework.zsdk.log.LogMe;
-import com.vinhhoang.cmsservice.aop.util.ObjectCasting;
+import com.example.consumer.aop.util.ObjectCasting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 
 public class UserAgencyIdCasting extends ObjectCasting<Integer> {
+
+    private Logger logger = LoggerFactory.getLogger(UserAgencyIdCasting.class);
 
     public UserAgencyIdCasting(String key, BufferedReader reader) {
         super(key, reader);
@@ -14,10 +17,14 @@ public class UserAgencyIdCasting extends ObjectCasting<Integer> {
     @Override
     public Integer cast() {
         try {
-            String line = reader.readLine();
-            return this.getValueParameter(line,key);
+            String line;
+            while((line = reader.readLine()) != null){
+                if (line.contains(key)){
+                    return this.getValueParameter(line,key);
+                }
+            }
         }catch (Exception ex){
-            LogMe.exception(ex);
+            logger.error(ex.getMessage());
         }
         return 0;
     }

@@ -7,5 +7,5 @@ public abstract class ObjectCasting<T> extends ParentCasting<T> {
         super(key, reader);
     }
 
-    protected abstract T cast();
+    public abstract T cast();
 }
