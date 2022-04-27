@@ -16,8 +16,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
+@PropertySource("classpath:rabbit_info.properties")
+
 public class MyRabbitMQConfig {
 
     Logger logger = LoggerFactory.getLogger(MyRabbitMQConfig.class);
@@ -44,7 +47,7 @@ public class MyRabbitMQConfig {
         // Số connection tối đa được kết nối 1 lần
         connectionFactory.setConnectionLimit(8);
         // Số connection tối đa trong chế độ chờ
-        connectionFactory.setConnectionCacheSize(10);
+//        connectionFactory.setConnectionCacheSize(10);
         // Số channel trong 1 connection
         connectionFactory.setChannelCacheSize(5);
         // Thời gian để tạo kết nối với 1 channel, nếu vượt 10000 milis, thrown AmqpTimeoutException

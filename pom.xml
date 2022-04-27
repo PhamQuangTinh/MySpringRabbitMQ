@@ -15,6 +15,12 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
+		<db.servername>localhost</db.servername>
+		<db.name>postgres</db.name>
+		<db.username>root</db.username>
+		<db.password>1234</db.password>
+		<db.url>jdbc:postgresql://localhost:5432/postgres</db.url>
+		<postgres-verson>42.3.3</postgres-verson>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -35,12 +41,21 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
+			<version>${postgres-verson}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jooq</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>5.3.19</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -59,6 +74,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.6.7</version>
 				<configuration>
 					<excludes>
 						<exclude>
@@ -66,6 +82,104 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+
+			<!-- read configuration from resource file, not required since tha data may be directly add to the pom -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>read-project-properties</goal>
+						</goals>
+						<configuration>
+							<files>
+								<file>src/main/resources/database_info.properties</file>
+							</files>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!--The SQL Maven plugin is used to execute SQL statements to create and populate database tables.
+			 It will make use of the properties that have been extracted from the intro_config.properties file
+			 by the Properties Maven plugin and take the SQL statements from the intro_schema.sql resource. -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>sql-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<driver>org.postgresql.Driver</driver>
+							<url>${db.url}</url>
+							<username>${db.username}</username>
+							<password>${db.password}</password>
+							<srcFiles>
+								<srcFile>src/main/resources/database/intro_schema.sql</srcFile>
+							</srcFiles>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.postgresql</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>${postgres-verson}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jooq</groupId>
+				<artifactId>jooq-codegen-maven</artifactId>
+				<version>3.14.15</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<jdbc>
+						<driver>org.postgresql.Driver</driver>
+						<url>${db.url}</url>
+						<user>${db.username}</user>
+						<password>${db.password}</password>
+					</jdbc>
+
+					<generator>
+						<database>
+							<name>
+								org.jooq.meta.postgres.PostgresDatabase
+							</name>
+							<includes>.*</includes>
+							<excludes></excludes>
+							<inputSchema>my_assignment</inputSchema>
+						</database>
+						<generate>
+							<pojos>true</pojos>
+							<pojosEqualsAndHashCode>
+								true
+							</pojosEqualsAndHashCode>
+							<javaTimeTypes>true</javaTimeTypes>
+							<fluentSetters>true</fluentSetters>
+						</generate>
+						<target>
+							<packageName>com.example.consumer.spring.db</packageName>
+							<directory>target/generated-sources/jooq</directory>
+						</target>
+					</generator>
 				</configuration>
 			</plugin>
 		</plugins>
